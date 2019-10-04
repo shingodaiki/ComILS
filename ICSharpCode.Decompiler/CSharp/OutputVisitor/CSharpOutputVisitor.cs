@@ -394,8 +394,9 @@ namespace ICSharpCode.Decompiler.CSharp.OutputVisitor
 
 		/// <summary>
 		/// Determines whether the specified identifier is a keyword in the given context.
+		/// If <paramref name="context"/> is <langword>null</langword> all keywords are treated as unconditional.
 		/// </summary>
-		public static bool IsKeyword(string identifier, AstNode context)
+		public static bool IsKeyword(string identifier, AstNode context = null)
 		{
 			// only 2-10 char lower-case identifiers can be keywords
 			if (identifier.Length > maxKeywordLength || identifier.Length < 2 || identifier[0] < 'a') {
@@ -405,9 +406,11 @@ namespace ICSharpCode.Decompiler.CSharp.OutputVisitor
 				return true;
 			}
 			if (queryKeywords.Contains(identifier)) {
-				return context.Ancestors.Any(ancestor => ancestor is QueryExpression);
+				return context == null || context.Ancestors.Any(ancestor => ancestor is QueryExpression);
 			}
 			if (identifier == "await") {
+				if (context == null)
+					return true;
 				foreach (AstNode ancestor in context.Ancestors) {
 					// with lambdas/anonymous methods,
 					if (ancestor is LambdaExpression) {
