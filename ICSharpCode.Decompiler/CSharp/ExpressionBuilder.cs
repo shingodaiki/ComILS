@@ -1809,7 +1809,7 @@ namespace ICSharpCode.Decompiler.CSharp
 			// Create AnonymousMethodExpression and prepare parameters
 			AnonymousMethodExpression ame = new AnonymousMethodExpression();
 			ame.IsAsync = function.IsAsync;
-			ame.Parameters.AddRange(MakeParameters(function.Parameters, function));
+			ame.Parameters.AddRange(CreateParametersForLocalFunctionOrLambda(function.Parameters, function));
 			ame.HasParameterList = ame.Parameters.Count > 0;
 			StatementBuilder builder = new StatementBuilder(typeSystem, this.decompilationContext, function, settings, cancellationToken);
 			var body = builder.ConvertAsBlock(function.Body);
@@ -1918,7 +1918,7 @@ namespace ICSharpCode.Decompiler.CSharp
 				return SpecialType.UnknownType;
 		}
 
-		internal IEnumerable<ParameterDeclaration> MakeParameters(IReadOnlyList<IParameter> parameters, ILFunction function)
+		internal IEnumerable<ParameterDeclaration> CreateParametersForLocalFunctionOrLambda(IReadOnlyList<IParameter> parameters, ILFunction function)
 		{
 			var variables = function.Variables.Where(v => v.Kind == VariableKind.Parameter).ToDictionary(v => v.Index);
 			int i = 0;
@@ -1933,8 +1933,11 @@ namespace ICSharpCode.Decompiler.CSharp
 				}
 				if (settings.AnonymousTypes && parameter.Type.ContainsAnonymousType())
 					pd.Type = null;
-				if (variables.TryGetValue(i, out var v))
+				if (variables.TryGetValue(i, out var v)) {
 					pd.AddAnnotation(new ILVariableResolveResult(v, parameters[i].Type));
+					pd.Name = v.Name;
+				} else
+					pd.Name = "P_" + i;
 				yield return pd;
 				i++;
 			}

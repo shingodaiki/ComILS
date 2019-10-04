@@ -965,7 +965,7 @@ namespace ICSharpCode.Decompiler.CSharp
 				var stmt = new LocalFunctionDeclarationStatement();
 				var nestedBuilder = new StatementBuilder(typeSystem, exprBuilder.decompilationContext, function, settings, cancellationToken);
 				stmt.Name = function.Name;
-				stmt.Parameters.AddRange(exprBuilder.MakeParameters(function.Parameters, function));
+				stmt.Parameters.AddRange(exprBuilder.CreateParametersForLocalFunctionOrLambda(function.Parameters, function));
 				stmt.ReturnType = exprBuilder.ConvertType(function.Method.ReturnType);
 				stmt.Body = nestedBuilder.ConvertAsBlock(function.Body);
 				if (function.IsAsync) {

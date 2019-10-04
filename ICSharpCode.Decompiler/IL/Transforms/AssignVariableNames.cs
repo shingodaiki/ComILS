@@ -20,11 +20,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using System.Text;
-using System.Threading.Tasks;
 using Humanizer;
-using ICSharpCode.Decompiler.IL;
-using ICSharpCode.Decompiler.Semantics;
 using ICSharpCode.Decompiler.TypeSystem;
 using ICSharpCode.Decompiler.TypeSystem.Implementation;
 using ICSharpCode.Decompiler.Util;
@@ -64,6 +60,8 @@ namespace ICSharpCode.Decompiler.IL.Transforms
 			reservedVariableNames = new Dictionary<string, int>();
 			loopCounters = CollectLoopCounters(function);
 			foreach (var f in function.Descendants.OfType<ILFunction>()) {
+				if (f.Kind != ILFunctionKind.TopLevelFunction)
+					continue;
 				if (f.Method != null) {
 					if (IsSetOrEventAccessor(f.Method) && f.Method.Parameters.Count > 0) {
 						for (int i = 0; i < f.Method.Parameters.Count - 1; i++) {
@@ -142,7 +140,8 @@ namespace ICSharpCode.Decompiler.IL.Transforms
 			int numDisplayClassLocals = 0;
 			foreach (var v in function.Variables) {
 				switch (v.Kind) {
-					case VariableKind.Parameter: // ignore
+					case VariableKind.Parameter when function.Kind == ILFunctionKind.TopLevelFunction:
+						// ignore parameters from top-level functions
 						break;
 					case VariableKind.InitializerTarget: // keep generated names
 						AddExistingName(reservedVariableNames, v.Name);
