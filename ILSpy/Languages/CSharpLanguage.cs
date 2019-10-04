@@ -354,7 +354,6 @@ namespace ICSharpCode.ILSpy
 			} else {
 				AddReferenceAssemblyWarningMessage(module, output);
 				AddReferenceWarningMessage(module, output);
-				output.WriteLine();
 				base.DecompileAssembly(assembly, output, options);
 
 				// don't automatically load additional assemblies when an assembly node is selected in the tree view
